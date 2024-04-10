@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  DISCORD_TOKEN: ${{ vars.DISCORD_TOKEN }}
+  GUILD_ID: ${{ vars.GUILD_ID }}
+  WELCOME_CHANNEL_ID: ${{ vars.WELCOME_CHANNEL_ID }}
+  WELCOME_MESSAGE_ID: ${{ vars.WELCOME_MESSAGE_ID }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run the bot
+        run: |
+          npm i 
+          npm run bot
