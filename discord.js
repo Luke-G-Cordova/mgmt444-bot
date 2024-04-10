@@ -1,4 +1,3 @@
-require('dotenv').config();
 const {
   Client,
   Events,
@@ -16,7 +15,7 @@ const client = new Client({
   ],
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
-
+console.log(process.env.DISCORD_TOKEN);
 const TOKEN = process.env.DISCORD_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID;
