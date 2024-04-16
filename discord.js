@@ -32,6 +32,24 @@ const emojiRoleMapping = {
   '↩️': 'team 12',
 };
 
+const emojiOptions = [
+  '👍',
+  '👎',
+  '❤️',
+  '💚',
+  '🩵',
+  '🧡',
+  '💯',
+  '🟢',
+  '🟣',
+  '🟤',
+  '🔵',
+  '🔴',
+  '🟡',
+  '🔆',
+  '🃏',
+];
+
 client.once(Events.ClientReady, async (client) => {
   console.log('reacting');
   const channel = await client.channels.fetch(WELCOME_CHANNEL_ID);
@@ -104,17 +122,34 @@ client.on(Events.MessageReactionRemove, async (reaction, user) => {
   }
 });
 
-const emojiOptions = ['👍', '👎', '❤️', '💚', '🩵', '🧡'];
-
 client.on(Events.MessageCreate, async (message) => {
-  if (message.content.startsWith('!poll')) {
-    const pollOptions = message.content.split(' ').slice(1);
-    const pollString = `**Poll:** React to vote!\n${
-      '[' +
-      pollOptions
-        .map((option, index) => `${emojiOptions[index]} : ${option}`)
-        .join('], [')
-    }`;
+  const member = await message.guild.members.fetch(message.author.id);
+  if (
+    message.content.startsWith('!poll') &&
+    member.roles.cache.find((e) => e.name === 'team 10' || e.name === 'PM') !=
+      null
+  ) {
+    const descMatch = message.content.match(/(?<=d=")(\w+|\w+ )+(?=")/);
+    let msg = message.content;
+    let description = 'React to vote!';
+    if (descMatch != null && descMatch[0] != '') {
+      description = descMatch[0];
+      msg =
+        message.content.substring(0, descMatch.index - 3) +
+        message.content.substring(descMatch.index + descMatch[0].length + 2);
+    }
+
+    const pollOptions = msg.split(' ').slice(1);
+
+    console.log(
+      `Creating poll - Description: "${description}",  Options: ["${pollOptions.join(
+        '", "'
+      )}"]`
+    );
+
+    const pollString = `**Poll**: ${description}\n${pollOptions
+      .map((option, index) => `${emojiOptions[index]} : ${option}`)
+      .join(pollOptions.length <= 3 ? ', ' : '\n')}`;
 
     const pollMessage = await message.channel.send(pollString);
     for (let i = 0; i < pollOptions.length; i++) {
