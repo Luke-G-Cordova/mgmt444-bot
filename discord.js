@@ -1,15 +1,12 @@
-const {
-  Client,
-  Events,
-  GatewayIntentBits,
-  Partials,
-  PermissionsBitField,
-} = require('discord.js');
+require('dotenv').config();
+
+const { Client, Events, GatewayIntentBits, Partials } = require('discord.js');
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildMembers,
   ],
@@ -71,7 +68,6 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
       (role) => role.name === roleName
     );
     if (role) {
-      // console.log(member.roles);
       await member.roles.add(role);
 
       console.log(
@@ -81,7 +77,7 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
   }
 });
 
-client.on('messageReactionRemove', async (reaction, user) => {
+client.on(Events.MessageReactionRemove, async (reaction, user) => {
   if (reaction.message.partial) await reaction.message.fetch();
   if (
     reaction.message.channelId !== WELCOME_CHANNEL_ID ||
@@ -105,6 +101,26 @@ client.on('messageReactionRemove', async (reaction, user) => {
         `${member.user.username} has been removed from the role ${role.name}`
       );
     }
+  }
+});
+
+const emojiOptions = ['👍', '👎', '❤️', '💚', '🩵', '🧡'];
+
+client.on(Events.MessageCreate, async (message) => {
+  if (message.content.startsWith('!poll')) {
+    const pollOptions = message.content.split(' ').slice(1);
+    const pollString = `**Poll:** React to vote!\n${
+      '[' +
+      pollOptions
+        .map((option, index) => `${emojiOptions[index]} : ${option}`)
+        .join('], [')
+    }`;
+
+    const pollMessage = await message.channel.send(pollString);
+    for (let i = 0; i < pollOptions.length; i++) {
+      await pollMessage.react(emojiOptions[i]);
+    }
+    await message.delete();
   }
 });
 
