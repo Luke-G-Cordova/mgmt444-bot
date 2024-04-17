@@ -33,8 +33,10 @@ const emojiRoleMapping = {
 };
 
 const emojiOptions = [
-  '👍',
-  '👎',
+  '🤖',
+  '💀',
+  '💪',
+  '🤯',
   '❤️',
   '💚',
   '🩵',
@@ -48,6 +50,8 @@ const emojiOptions = [
   '🟡',
   '🔆',
   '🃏',
+  '👍',
+  '👎',
 ];
 
 client.once(Events.ClientReady, async (client) => {
@@ -129,7 +133,7 @@ client.on(Events.MessageCreate, async (message) => {
     member.roles.cache.find((e) => e.name === 'team 10' || e.name === 'PM') !=
       null
   ) {
-    const descMatch = message.content.match(/(?<=d=").+(?=")/);
+    const descMatch = message.content.match(/(?<=d=")[^"]+(?=")/);
     let msg = message.content;
     let description = 'React to vote!';
     if (descMatch != null && descMatch[0] != '') {
@@ -139,7 +143,12 @@ client.on(Events.MessageCreate, async (message) => {
         message.content.substring(descMatch.index + descMatch[0].length + 2);
     }
 
-    const pollOptions = msg.split(' ').slice(1);
+    let pollOptions = msg.match(/("[^"]+"|[^" ]+)/g).slice(1); // msg.split(' ').slice(1);
+    if (pollOptions == null) {
+      console.log('Cannot create poll, options are incorrect');
+      return;
+    }
+    pollOptions = pollOptions.map((val) => val.replaceAll('"', ''));
 
     console.log(
       `Creating poll - Description: "${description}",  Options: ["${pollOptions.join(
@@ -149,7 +158,7 @@ client.on(Events.MessageCreate, async (message) => {
 
     const pollString = `**Poll**: ${description}\n${pollOptions
       .map((option, index) => `${emojiOptions[index]} : ${option}`)
-      .join(pollOptions.length <= 3 ? ', ' : '\n')}`;
+      .join('\n')}`;
 
     const pollMessage = await message.channel.send(pollString);
     for (let i = 0; i < pollOptions.length; i++) {
