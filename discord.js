@@ -1,4 +1,4 @@
-require('dotenv').config();
+if (process.env.DEV !== 'PROD') require('dotenv').config();
 
 const { Client, Events, GatewayIntentBits, Partials } = require('discord.js');
 
@@ -129,7 +129,7 @@ client.on(Events.MessageCreate, async (message) => {
     member.roles.cache.find((e) => e.name === 'team 10' || e.name === 'PM') !=
       null
   ) {
-    const descMatch = message.content.match(/(?<=d=")(\w+|\w+ )+(?=")/);
+    const descMatch = message.content.match(/(?<=d=").+(?=")/);
     let msg = message.content;
     let description = 'React to vote!';
     if (descMatch != null && descMatch[0] != '') {
